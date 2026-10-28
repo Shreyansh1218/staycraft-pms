@@ -1,0 +1,42 @@
+
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local PostgreSQL runtime files
+data/postgres.log
+data/pgrun/
+
+# Database backups and dumps
+*.sql
+*.dump
+*.backup
+*.bak
+
+# User uploads and private files
+uploads/
+data/uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+
+!migrations/
+!migrations/**/*.sql
+.sudo_as_admin_successful
+data/pgdata/
+
+data/pgdata/
+
+.config/
