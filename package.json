@@ -1,3 +1,4 @@
+
 {
   "name": "staycraft-pms",
   "version": "1.0.0",
@@ -14,8 +15,8 @@
     "dev": "tsx watch src/server/index.ts",
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
-    "build": "npm run build:client && npm run build:server && rm -rf release && mkdir -p release && cp -R dist/client dist/server release/",
-    "start": "NODE_ENV=production node dist/server/server/index.js",
+    "build": "npm run build:client && npm run build:server && node -e \"const fs=require('node:fs'); fs.rmSync('release',{recursive:true,force:true}); fs.mkdirSync('release',{recursive:true}); fs.cpSync('dist/client','release/client',{recursive:true}); fs.cpSync('dist/server','release/server',{recursive:true});\"",
+    "start": "node -e \"process.env.NODE_ENV='production'; import('./dist/server/server/index.js')\"",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
     "test": "vitest run",
@@ -41,8 +42,6 @@
     "@types/node": "^22.13.4",
     "@types/pg": "^8.11.11",
     "@types/qrcode": "^1.5.6",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
     "@types/supertest": "^6.0.2",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
@@ -55,6 +54,7 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.0",
     "vite": "^6.1.0",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^3.0.5"
   }
 }

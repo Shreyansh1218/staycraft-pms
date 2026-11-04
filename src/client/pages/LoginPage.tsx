@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Lock, Mail, AlertCircle, CheckCircle2, Info, ShieldCheck } from 'lucide-react';
 import { sanitizeInternalRedirectPath } from '../../shared/navigation';
 import { useAuth } from '../context/AuthContext';
 import { ApiClientError } from '../lib/api';
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+}
 
 export function LoginPage() {
   const { user, isLoading, sessionNotice, clearSessionNotice, login } = useAuth();
@@ -14,6 +19,39 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // PWA installation state
+  const [installPrompt, setInstallPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    };
+
+    const handleAppInstalled = () => {
+      setInstallPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+
+    try {
+      await installPrompt.prompt();
+    } finally {
+      setInstallPrompt(null);
+    }
+  };
 
   const rawFrom = (location.state as { from?: string } | null)?.from;
   const redirectTarget = sanitizeInternalRedirectPath(rawFrom);
@@ -184,6 +222,17 @@ export function LoginPage() {
                 {submitting ? 'Signing in...' : 'Sign In'}
               </button>
             </form>
+
+            {/* Install StayCraft App */}
+            {installPrompt && (
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="mt-4 w-full rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+              >
+                Install StayCraft App
+              </button>
+            )}
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 text-xs text-slate-600">
